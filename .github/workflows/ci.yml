@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run pipeline
+        env:
+          PYTHONUNBUFFERED: "1"
+        run: |
+          python src/smoke_test.py
+          python src/pipeline/ingest_admin1.py
+          python src/pipeline/ingest_populated_places.py
+          python src/pipeline/standardize_admin1.py
+          python src/pipeline/standardize_populated_places.py
+          python src/pipeline/validate_admin1.py
+          python src/pipeline/model_admin1_duckdb.py
+          python src/pipeline/analyze_cities_to_admin1.py

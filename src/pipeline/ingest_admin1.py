@@ -21,7 +21,13 @@ def main() -> int:
         return 0
 
 
+    if OUT.exists():
+        size_mb = OUT.stat().st_size / (1024 * 1024)
+        print(f"OK: already downloaded ({size_mb:.2f} MB) -> {OUT.resolve()}")
+        return 0
+
     urlretrieve(URL, OUT)
+
 
     size_mb = OUT.stat().st_size / (1024 * 1024)
     print(f"OK: downloaded {size_mb:.2f} MB")

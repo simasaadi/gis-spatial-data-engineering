@@ -14,7 +14,6 @@ if (-not (Test-Path $py)) {
 
 Write-Host "Running pipeline..."
 
-
 & $py "src\smoke_test.py"
 
 & $py "src\pipeline\ingest_admin1.py"
@@ -28,4 +27,6 @@ Write-Host "Running pipeline..."
 & $py "src\pipeline\model_admin1_duckdb.py"
 & $py "src\pipeline\analyze_cities_to_admin1.py"
 
-Write-Host "DONE. Check docs/qa and docs/results."
+Write-Host "DONE. Outputs:"
+Write-Host "  - docs/qa/admin1_qa_report.csv"
+Write-Host "  - docs/results/*.csv"
