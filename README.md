@@ -78,7 +78,9 @@ python -m pip install -r requirements.txt
 ./run_all.sh    # Mac/Linux
 
 
+Data sources
 
+Natural Earth (vector datasets). Raw files are downloaded during ingest and ignored by git; small samples are committed for fast demo loading.
 
 
 
