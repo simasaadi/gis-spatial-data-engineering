@@ -10,7 +10,7 @@ End-to-end spatial data pipeline demo: ingest Natural Earth datasets, standardiz
 
 \## Live demo
 
-\- Interactive map: https://simasaadi.github.io/gis-spatial-data-engineering/
+\- Interactive map: [simasaadi.github.io/gis-spatial-data-engineering](https://simasaadi.github.io/gis-spatial-data-engineering/)
 
 
 
