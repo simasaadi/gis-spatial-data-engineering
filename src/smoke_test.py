@@ -12,6 +12,7 @@ ROOT = Path(__file__).resolve().parents[1]
 SAMPLE_DIR = ROOT / "data" / "sample"
 SAMPLE_DIR.mkdir(parents=True, exist_ok=True)
 
+
 def main() -> int:
     # Small sample points (Toronto-ish) to prove the stack works end-to-end
     df = pd.DataFrame(
@@ -24,14 +25,14 @@ def main() -> int:
     )
     gdf = gpd.GeoDataFrame(
         df,
-        geometry=[Point(xy) for xy in zip(df["lon"], df["lat"])],
+        geometry=[Point(xy) for xy in zip(df["lon"], df["lat"], strict=True)],
         crs="EPSG:4326",
     )
 
     out_path = SAMPLE_DIR / "toronto_points.geoparquet"
     gdf.to_parquet(out_path, index=False)
 
-      # DuckDB spatial smoke test
+    # DuckDB spatial smoke test
     con = duckdb.connect(database=":memory:")
     con.execute("INSTALL spatial;")
     con.execute("LOAD spatial;")
@@ -56,6 +57,7 @@ def main() -> int:
     print("GeoPandas:", gpd.__version__)
     print("DuckDB:", duckdb.__version__)
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

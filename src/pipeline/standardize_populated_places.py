@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import geopandas as gpd
 
 RAW = Path("data/raw/natural_earth/ne_10m_populated_places.geojson")
@@ -13,18 +14,14 @@ OUT_SAMPLE = Path("data/sample/populated_places_canada_sample.geoparquet")  # sm
 
 
 def _snake(s: str) -> str:
-    return (
-        s.strip()
-        .lower()
-        .replace(" ", "_")
-        .replace("-", "_")
-        .replace("/", "_")
-    )
+    return s.strip().lower().replace(" ", "_").replace("-", "_").replace("/", "_")
 
 
 def main() -> int:
     if not RAW.exists():
-        raise FileNotFoundError(f"Missing raw file: {RAW.resolve()} (run ingest_populated_places first)")
+        raise FileNotFoundError(
+            f"Missing raw file: {RAW.resolve()} (run ingest_populated_places first)"
+        )
 
     gdf = gpd.read_file(RAW)
     print("OK: read rows =", len(gdf))

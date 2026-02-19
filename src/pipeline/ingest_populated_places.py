@@ -9,6 +9,7 @@ RAW_DIR.mkdir(parents=True, exist_ok=True)
 URL = "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/master/geojson/ne_10m_populated_places.geojson"
 OUT = RAW_DIR / "ne_10m_populated_places.geojson"
 
+
 def main() -> int:
     print("Downloading:")
     print(" ", URL)
@@ -20,7 +21,6 @@ def main() -> int:
         print(f"OK: already downloaded ({size_mb:.2f} MB) -> {OUT.resolve()}")
         return 0
 
-
     if OUT.exists():
         size_mb = OUT.stat().st_size / (1024 * 1024)
         print(f"OK: already downloaded ({size_mb:.2f} MB) -> {OUT.resolve()}")
@@ -28,10 +28,10 @@ def main() -> int:
 
     urlretrieve(URL, OUT)
 
-
     size_mb = OUT.stat().st_size / (1024 * 1024)
     print(f"OK: downloaded {size_mb:.2f} MB")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

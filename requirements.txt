@@ -8,3 +8,5 @@ duckdb>=0.10
 pandas>=2.1
 
 rich>=13.7
+ruff>=0.6
+pytest>=8.0

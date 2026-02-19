@@ -1,8 +1,9 @@
 from __future__ import annotations
 
 from pathlib import Path
-import pandas as pd
+
 import geopandas as gpd
+import pandas as pd
 
 RAW = Path("data/raw/natural_earth/ne_10m_admin_1_states_provinces.geojson")
 STD = Path("data/processed/natural_earth/admin1_standardized.geoparquet")
@@ -58,7 +59,9 @@ def main() -> int:
     if not RAW.exists():
         raise FileNotFoundError(f"Missing raw file: {RAW.resolve()} (run ingest first)")
     if not STD.exists():
-        raise FileNotFoundError(f"Missing standardized file: {STD.resolve()} (run standardize first)")
+        raise FileNotFoundError(
+            f"Missing standardized file: {STD.resolve()} (run standardize first)"
+        )
 
     raw = gpd.read_file(RAW)
     std = gpd.read_parquet(STD)
@@ -69,9 +72,16 @@ def main() -> int:
 
     # Field QA (only if fields exist)
     important_fields = [
-        "admin", "adm0_a3", "name", "name_en",
-        "iso_3166_2", "adm1_code", "gn_id",
-        "type", "region", "geonunit",
+        "admin",
+        "adm0_a3",
+        "name",
+        "name_en",
+        "iso_3166_2",
+        "adm1_code",
+        "gn_id",
+        "type",
+        "region",
+        "geonunit",
     ]
     raw_stats.update(null_counts(raw, important_fields))
     std_stats.update(null_counts(std, important_fields))
@@ -83,6 +93,7 @@ def main() -> int:
 
     # Build report table
     rows = []
+
     def add(check: str, raw_v, std_v):
         rows.append({"check": check, "raw": raw_v, "standardized": std_v})
 

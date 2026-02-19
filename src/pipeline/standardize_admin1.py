@@ -13,13 +13,7 @@ OUT_SAMPLE = Path("data/sample/admin1_canada_sample.geoparquet")  # small, ok to
 
 
 def _snake(s: str) -> str:
-    return (
-        s.strip()
-        .lower()
-        .replace(" ", "_")
-        .replace("-", "_")
-        .replace("/", "_")
-    )
+    return s.strip().lower().replace(" ", "_").replace("-", "_").replace("/", "_")
 
 
 def main() -> int:

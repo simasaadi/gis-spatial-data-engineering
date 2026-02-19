@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import duckdb
 
 ADMIN1_STD = Path("data/processed/natural_earth/admin1_standardized.geoparquet")

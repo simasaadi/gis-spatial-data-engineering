@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+
 import duckdb
 
 STD = Path("data/processed/natural_earth/admin1_standardized.geoparquet")
@@ -17,7 +18,9 @@ OUT_EXPLAIN = OUT_DIR / "admin1_rtree_explain.txt"
 
 def main() -> int:
     if not STD.exists():
-        raise FileNotFoundError(f"Missing standardized file: {STD.resolve()} (run standardize first)")
+        raise FileNotFoundError(
+            f"Missing standardized file: {STD.resolve()} (run standardize first)"
+        )
 
     con = duckdb.connect(str(DB_PATH))
     con.execute("INSTALL spatial;")
