@@ -62,6 +62,9 @@ Scripts are in `src/pipeline/` and can be executed end-to-end via:
 
 \- Top admin1 by city count: `docs/results/cities\_by\_admin1\_top50.csv`
 
+Data sources
+
+Natural Earth (vector datasets). Raw files are downloaded during ingest and ignored by git; small samples are committed for fast demo loading.
 
 
 ## How to run (local)
@@ -81,13 +84,3 @@ python -m pip install -r requirements.txt
 ./run_all.ps1   # Windows
 ./run_all.sh    # Mac/Linux
 
-Data sources
-
-Natural Earth (vector datasets). Raw files are downloaded during ingest and ignored by git; small samples are committed for fast demo loading.                                                                                            
-
-
-
-
-Data sources
-
-Natural Earth (vector datasets). Raw files are downloaded during ingest and ignored by git; small samples are committed for fast demo loading.
