@@ -31,18 +31,13 @@ def main() -> int:
     out_path = SAMPLE_DIR / "toronto_points.geoparquet"
     gdf.to_parquet(out_path, index=False)
 
-    # DuckDB spatial smoke test
+      # DuckDB spatial smoke test
     con = duckdb.connect(database=":memory:")
     con.execute("INSTALL spatial;")
     con.execute("LOAD spatial;")
 
-    con.execute(
-        """
-        CREATE VIEW pts AS
-        SELECT * FROM read_parquet(?)
-        """,
-        [str(out_path)],
-    )
+    parquet_path = out_path.as_posix().replace("'", "''")
+    con.execute(f"CREATE VIEW pts AS SELECT * FROM read_parquet('{parquet_path}')")
 
     n = con.execute("SELECT COUNT(*) FROM pts").fetchone()[0]
     bbox = con.execute(
