@@ -26,7 +26,7 @@ End-to-end spatial data pipeline demo: ingest Natural Earth datasets, standardiz
 
 \- Data publishing: web-ready GeoJSON assets + Leaflet map
 
-
+Tech stack: GeoPandas, Shapely, PyProj, DuckDB Spatial, Leaflet, GitHub Actions, GitHub Pages
 
 \## Pipeline
 
