@@ -1,0 +1,14 @@
+province,adm1_code,city_count,sum_pop_max
+Ontario,CAN-682,47,9777494.0
+Québec,CAN-683,40,5128738.0
+British Columbia,CAN-633,31,3426424.0
+Alberta,CAN-632,22,2530765.0
+Nunavut,CAN-634,22,26766.0
+Newfoundland and Labrador,CAN-686,21,197897.0
+Manitoba,CAN-630,20,731999.0
+Saskatchewan,CAN-631,16,523713.0
+Northwest Territories,CAN-635,14,32105.0
+Nova Scotia,CAN-685,11,456709.0
+New Brunswick,CAN-684,5,254834.0
+Yukon,CAN-636,4,25470.0
+Prince Edward Island,CAN-687,1,42402.0

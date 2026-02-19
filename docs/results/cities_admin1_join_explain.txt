@@ -1,0 +1,25 @@
+physical_plan | ┌───────────────────────────┐
+│    UNGROUPED_AGGREGATE    │
+│    ────────────────────   │
+│        Aggregates:        │
+│        count_star()       │
+└─────────────┬─────────────┘
+┌─────────────┴─────────────┐
+│        SPATIAL_JOIN       │
+│    ────────────────────   │
+│      Join Type: INNER     │
+│                           │
+│        Conditions:        ├──────────────┐
+│ ST_Intersects(geom, geom) │              │
+│                           │              │
+│        ~7,342 rows        │              │
+└─────────────┬─────────────┘              │
+┌─────────────┴─────────────┐┌─────────────┴─────────────┐
+│         SEQ_SCAN          ││         SEQ_SCAN          │
+│    ────────────────────   ││    ────────────────────   │
+│       Table: cities       ││       Table: admin1       │
+│   Type: Sequential Scan   ││   Type: Sequential Scan   │
+│     Projections: geom     ││     Projections: geom     │
+│                           ││                           │
+│        ~7,342 rows        ││        ~4,596 rows        │
+└───────────────────────────┘└───────────────────────────┘
