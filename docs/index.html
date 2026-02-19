@@ -41,52 +41,196 @@
   </div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script>
-    const map = L.map("map").setView([56.5, -96.5], 3);
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+  const map = L.map("map").setView([56.5, -96.5], 3);
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 18,
-      attribution: "&copy; OpenStreetMap contributors"
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18,
+    attribution: "&copy; OpenStreetMap contributors"
+  }).addTo(map);
+
+  async function loadJSON(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`Failed ${url}: ${r.status}`);
+    return await r.json();
+  }
+
+  async function loadCSV(url) {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`Failed ${url}: ${r.status}`);
+    const text = await r.text();
+    const lines = text.trim().split(/\r?\n/);
+    const header = lines[0].split(",");
+    const idx = Object.fromEntries(header.map((h, i) => [h.trim(), i]));
+    const rows = [];
+    for (let i = 1; i < lines.length; i++) {
+      const cols = lines[i].split(",");
+      rows.push(cols);
+    }
+    return { idx, rows };
+  }
+
+  function number(x) {
+    const n = Number(x);
+    return Number.isFinite(n) ? n : 0;
+  }
+
+  function formatInt(x) {
+    return new Intl.NumberFormat().format(Math.round(number(x)));
+  }
+
+  function getColor(v, breaks) {
+    // light -> darker
+    if (v >= breaks[4]) return "#084081";
+    if (v >= breaks[3]) return "#0868ac";
+    if (v >= breaks[2]) return "#2b8cbe";
+    if (v >= breaks[1]) return "#4eb3d3";
+    if (v >= breaks[0]) return "#7bccc4";
+    return "#ccebc5";
+  }
+
+  (async () => {
+    const admin1 = await loadJSON("./data/canada_admin1.geojson");
+    const cities = await loadJSON("./data/canada_cities.geojson");
+    const csv = await loadCSV("./results/cities_by_canada_province.csv");
+
+    // Build lookup: adm1_code -> metrics
+    const adm1CodeIdx = csv.idx["adm1_code"];
+    const cityCountIdx = csv.idx["city_count"];
+    const sumPopIdx = csv.idx["sum_pop_max"];
+
+    const metrics = new Map();
+    for (const r of csv.rows) {
+      const code = (r[adm1CodeIdx] || "").trim();
+      metrics.set(code, {
+        city_count: number(r[cityCountIdx]),
+        sum_pop_max: number(r[sumPopIdx])
+      });
+    }
+
+    // attach metrics to features
+    let values = [];
+    for (const f of admin1.features) {
+      const code = (f.properties && f.properties.adm1_code) ? String(f.properties.adm1_code).trim() : "";
+      const m = metrics.get(code) || { city_count: 0, sum_pop_max: 0 };
+      f.properties.city_count = m.city_count;
+      f.properties.sum_pop_max = m.sum_pop_max;
+      values.push(m.city_count);
+    }
+
+    // choropleth breaks (quantiles-ish using sorted values)
+    values = values.filter(v => Number.isFinite(v)).sort((a,b) => a-b);
+    const q = (p) => values.length ? values[Math.floor(p * (values.length - 1))] : 0;
+    const breaks = [q(0.2), q(0.4), q(0.6), q(0.8), q(0.95)];
+
+    function styleFeature(f) {
+      const v = number(f.properties.city_count);
+      return {
+        weight: 1,
+        color: "#1f4b99",
+        fillOpacity: 0.35,
+        fillColor: getColor(v, breaks)
+      };
+    }
+
+    let info = L.control({ position: "topright" });
+    info.onAdd = function () {
+      this._div = L.DomUtil.create("div", "info");
+      this._div.style.background = "white";
+      this._div.style.padding = "8px 10px";
+      this._div.style.borderRadius = "8px";
+      this._div.style.boxShadow = "0 1px 6px rgba(0,0,0,0.2)";
+      this.update();
+      return this._div;
+    };
+    info.update = function (props) {
+      if (!props) {
+        this._div.innerHTML = "<b>Hover a province/territory</b><br/>City count + summed pop_max";
+        return;
+      }
+      this._div.innerHTML =
+        `<b>${props.name || "Unknown"}</b><br/>
+         city_count: ${formatInt(props.city_count)}<br/>
+         sum_pop_max: ${formatInt(props.sum_pop_max)}`;
+    };
+    info.addTo(map);
+
+    function highlight(e) {
+      const layer = e.target;
+      layer.setStyle({ weight: 2, fillOpacity: 0.55 });
+      layer.bringToFront();
+      info.update(layer.feature.properties);
+    }
+
+    function reset(e) {
+      adminLayer.resetStyle(e.target);
+      info.update();
+    }
+
+    function onEachFeature(feature, layer) {
+      layer.on({
+        mouseover: highlight,
+        mouseout: reset
+      });
+      const p = feature.properties || {};
+      layer.bindPopup(
+        `<b>${p.name || "Unknown"}</b><br/>
+         city_count: ${formatInt(p.city_count)}<br/>
+         sum_pop_max: ${formatInt(p.sum_pop_max)}`
+      );
+    }
+
+    const adminLayer = L.geoJSON(admin1, { style: styleFeature, onEachFeature }).addTo(map);
+
+    const cityLayer = L.geoJSON(cities, {
+      pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 4, weight: 1, fillOpacity: 0.8 }),
+      onEachFeature: (f, layer) => {
+        const p = f.properties || {};
+        layer.bindPopup(`<b>${p.name || "City"}</b><br/>pop_max: ${formatInt(p.pop_max)}`);
+      }
     }).addTo(map);
 
-    function styleAdmin1() {
-      return { weight: 1, fillOpacity: 0.15 };
-    }
+    // Legend
+    const legend = L.control({ position: "bottomright" });
+    legend.onAdd = function () {
+      const div = L.DomUtil.create("div", "info legend");
+      div.style.background = "white";
+      div.style.padding = "8px 10px";
+      div.style.borderRadius = "8px";
+      div.style.boxShadow = "0 1px 6px rgba(0,0,0,0.2)";
+      div.innerHTML = "<b>City count</b><br/>";
+      const labels = [
+        `&lt; ${formatInt(breaks[0])}`,
+        `${formatInt(breaks[0])}–${formatInt(breaks[1])}`,
+        `${formatInt(breaks[1])}–${formatInt(breaks[2])}`,
+        `${formatInt(breaks[2])}–${formatInt(breaks[3])}`,
+        `${formatInt(breaks[3])}–${formatInt(breaks[4])}`,
+        `&ge; ${formatInt(breaks[4])}`
+      ];
+      const colors = [
+        "#ccebc5", "#7bccc4", "#4eb3d3", "#2b8cbe", "#0868ac", "#084081"
+      ];
+      for (let i = 0; i < labels.length; i++) {
+        div.innerHTML +=
+          `<div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+             <span style="width:14px; height:14px; background:${colors[i]}; display:inline-block;"></span>
+             <span>${labels[i]}</span>
+           </div>`;
+      }
+      return div;
+    };
+    legend.addTo(map);
 
-    async function loadGeoJSON(url) {
-      const r = await fetch(url);
-      if (!r.ok) throw new Error(`Failed ${url}: ${r.status}`);
-      return await r.json();
-    }
+    L.control.layers(
+      { "Canada Admin-1 (choropleth)": adminLayer },
+      { "Cities": cityLayer },
+      { collapsed: false }
+    ).addTo(map);
 
-    (async () => {
-      const admin1 = await loadGeoJSON("./data/canada_admin1.geojson");
-      const cities = await loadGeoJSON("./data/canada_cities.geojson");
+    map.fitBounds(adminLayer.getBounds());
+  })();
+</script>
 
-      const adminLayer = L.geoJSON(admin1, {
-        style: styleAdmin1,
-        onEachFeature: (f, layer) => {
-          const p = f.properties || {};
-          layer.bindPopup(`<b>${p.name || "Unknown"}</b><br/>${p.adm1_code || ""}`);
-        }
-      }).addTo(map);
-
-      const cityLayer = L.geoJSON(cities, {
-        pointToLayer: (f, latlng) => L.circleMarker(latlng, { radius: 4 }),
-        onEachFeature: (f, layer) => {
-          const p = f.properties || {};
-          layer.bindPopup(`<b>${p.name || "City"}</b><br/>pop_max: ${p.pop_max ?? "n/a"}`);
-        }
-      }).addTo(map);
-
-      L.control.layers(
-        { "Canada Admin-1": adminLayer },
-        { "Cities": cityLayer },
-        { collapsed: false }
-      ).addTo(map);
-
-      map.fitBounds(adminLayer.getBounds());
-    })();
-  </script>
 </body>
 </html>
