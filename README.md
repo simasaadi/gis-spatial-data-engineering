@@ -67,20 +67,19 @@ Scripts are in `src/pipeline/` and can be executed end-to-end via:
 \## How to run (local)
 
 ```bash
-
 python -m venv .venv
-# Windows: .venv\Scripts\activate
-# Mac/Linux: source .venv/bin/activate
+
+# Windows:
+.venv\Scripts\activate
+
+# Mac/Linux:
+source .venv/bin/activate
+
 python -m pip install -r requirements.txt
 
 # Run everything:
 ./run_all.ps1   # Windows
 ./run_all.sh    # Mac/Linux
-
-
-Data sources
-
-Natural Earth (vector datasets). Raw files are downloaded during ingest and ignored by git; small samples are committed for fast demo loading.
 
 
 
