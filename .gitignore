@@ -213,3 +213,6 @@ data/interim/
 data/processed/
 outputs/
 
+
+.venv/
+
