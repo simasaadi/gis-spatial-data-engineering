@@ -216,3 +216,9 @@ outputs/
 
 .venv/
 
+
+# allow web-published outputs
+!data/outputs/
+!data/outputs/web/
+!data/outputs/web/**
+
