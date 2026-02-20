@@ -1,0 +1,19 @@
+﻿{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": { "name": "Toronto (demo polygon)" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-79.55, 43.58],
+          [-79.15, 43.58],
+          [-79.15, 43.80],
+          [-79.55, 43.80],
+          [-79.55, 43.58]
+        ]]
+      }
+    }
+  ]
+}
